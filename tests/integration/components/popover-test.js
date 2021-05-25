@@ -1,31 +1,223 @@
-import { module, todo } from 'qunit';
+import { module, test, todo } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render } from '@ember/test-helpers';
+import { render, setupOnerror } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
+
+const PopoverState = {
+  Visible: 'visible',
+  InvisibleHidden: 'invisible-hidden',
+  InvisibleUnmounted: 'invisible-unmounted',
+};
+
+function assertPopoverButton(assert, button, options = {}) {
+  if (button === null) {
+    assert.notEqual(button, null, 'Popover.Button does not exist');
+    return;
+  }
+
+  assert
+    .dom(button)
+    .hasAttribute('id', /-headlessui-popover-button$/, 'Popover.Button has id');
+
+  switch (options.state) {
+    case PopoverState.Visible: {
+      assert.dom(button).hasAttribute('aria-controls');
+      assert.dom(button).hasAttribute('aria-expanded', 'true');
+      break;
+    }
+
+    case PopoverState.InvisibleHidden: {
+      assert.dom(button).hasAttribute('aria-controls');
+      assert.dom(button).doesNotHaveAttribute('aria-expanded');
+      break;
+    }
+
+    case PopoverState.InvisibleUnmounted: {
+      assert.dom(button).doesNotHaveAttribute('aria-controls');
+      assert.dom(button).doesNotHaveAttribute('aria-expanded');
+      break;
+    }
+
+    default:
+      assert.ok(false);
+  }
+
+  if (options.textContent) {
+    assert
+      .dom(button)
+      .hasText(options.textContent, 'Popover.Button contains content');
+  }
+
+  if (options.attributes) {
+    for (let attributeName in options.attributes) {
+      assert
+        .dom(button)
+        .hasAttribute(attributeName, options.attributes[attributeName]);
+    }
+  }
+}
+
+function assertHidden(assert, element) {
+  if (element === null) {
+    assert.notEqual(element, null, 'Element does not exist');
+    return;
+  }
+
+  assert.dom(element).hasAttribute('hidden');
+  assert.dom(element).hasStyle({ display: 'none' });
+}
+
+function assertVisible(assert, element) {
+  if (element === null) {
+    assert.notEqual(element, null, 'Element does not exist');
+    return;
+  }
+
+  assert.dom(element).doesNotHaveAttribute('hidden');
+  assert.dom(element).doesNotHaveStyle({ display: 'none' });
+}
+
+function assertPopoverPanel(assert, panel, options = {}) {
+  switch (options.state) {
+    case PopoverState.InvisibleHidden: {
+      if (panel === null) {
+        assert.notEqual(panel, null, 'Popover.Panel does not exist');
+        return;
+      }
+
+      assertHidden(assert, panel);
+
+      if (options.textContent) {
+        assert
+          .dom(panel)
+          .hasText(options.textContent, 'Popover.Panel contains content');
+      }
+
+      if (options.attributes) {
+        for (let attributeName in options.attributes) {
+          assert
+            .dom(panel)
+            .hasAttribute(attributeName, options.attributes[attributeName]);
+        }
+      }
+
+      break;
+    }
+
+    case PopoverState.Visible: {
+      if (panel === null) {
+        assert.notEqual(panel, null, 'Popover.Panel does not exist');
+        return;
+      }
+
+      assertVisible(assert, panel);
+
+      if (options.textContent) {
+        assert
+          .dom(panel)
+          .hasText(options.textContent, 'Popover.Panel contains content');
+      }
+
+      if (options.attributes) {
+        for (let attributeName in options.attributes) {
+          assert
+            .dom(panel)
+            .hasAttribute(attributeName, options.attributes[attributeName]);
+        }
+      }
+
+      break;
+    }
+
+    case PopoverState.InvisibleUnmounted: {
+      assert.equal(panel, null, 'Popover.Panel does not exist');
+      break;
+    }
+  }
+}
 
 module('Integration | Component | <Popover>', function (hooks) {
   setupRenderingTest(hooks);
 
   module('Safe guards', function () {
-    todo(
-      'it should error when we are using a <Popover::-Button /> without a parent <Popover />',
-      async function () {}
-    );
+    test('it should error when we are using a <Popover::-Button /> without a parent <Popover />', async function (assert) {
+      setupOnerror(function (err) {
+        assert.equal(
+          err.message,
+          '<Popover::-Button /> is missing a parent <Popover /> component.',
+          'Throw initialization error'
+        );
+      });
 
-    todo(
-      'it should error when we are using a <Popover::-Panel /> without a parent <Popover />',
-      async function () {}
-    );
+      await render(hbs`<Popover::-Button/>`);
+    });
 
-    todo(
-      'it should error when we are using a <Popover::-Overlay /> without a parent <Popover />',
-      async function () {}
-    );
+    test('it should error when we are using a <Popover::-Panel /> without a parent <Popover />', async function (assert) {
+      setupOnerror(function (err) {
+        assert.equal(
+          err.message,
+          '<Popover::-Panel /> is missing a parent <Popover /> component.',
+          'Throw initialization error'
+        );
+      });
 
-    todo(
-      'it should be possible to render a Popover without crashing',
-      async function () {}
-    );
+      await render(hbs`<Popover::-Panel/>`);
+    });
+
+    test('it should error when we are using a <Popover::-Overlay /> without a parent <Popover />', async function (assert) {
+      setupOnerror(function (err) {
+        assert.equal(
+          err.message,
+          '<Popover::-Overlay /> is missing a parent <Popover /> component.',
+          'Throw initialization error'
+        );
+      });
+
+      await render(hbs`<Popover::-Overlay/>`);
+    });
+
+    test('it should error when a panel is passed both `static` and `unmount`', async function (assert) {
+      setupOnerror(function (err) {
+        assert.equal(
+          err.message,
+          '<Popover::Panel /> cannot be passed `@static` and `@unmount` at the same time',
+          'Throw initialization error'
+        );
+      });
+
+      await render(hbs`
+        <Popover as |p|>
+          <p.Button>Trigger</p.Button>
+          <p.Panel @static={{true}} @unmount={{true}}>Contents</p.Panel>
+        </Popover>
+      `);
+    });
+
+    test('it should be possible to render a Popover without crashing', async function (assert) {
+      await render(hbs`
+        <Popover as |p|>
+          <p.Button>Trigger</p.Button>
+          <p.Panel>Contents</p.Panel>
+        </Popover>
+      `);
+
+      let popoverButton = this.element.querySelector(
+        '[id$="-headlessui-popover-button"]'
+      );
+
+      assertPopoverButton(assert, popoverButton, {
+        state: PopoverState.InvisibleUnmounted,
+        attributes: { id: /-headlessui-popover-button$/ },
+      });
+
+      let popoverPanel = this.element.querySelector(
+        '[id$="-headlessui-popover-panel"]'
+      );
+
+      assertPopoverPanel(assert, popoverPanel, {
+        state: PopoverState.InvisibleUnmounted,
+      });
+    });
   });
 
   module('Rendering', function () {

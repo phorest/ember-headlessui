@@ -1,0 +1,24 @@
+{{#let (element this.tagName) as |Tag|}}
+  <Tag id={{this.guid}} ...attributes>
+    {{yield (hash
+      Button=(
+        component "popover/-button"
+        guid=this.buttonGuid
+        popoverGuid=this.guid
+        open=this.open
+      )
+      Panel=(
+        component "popover/-panel"
+        guid=this.panelGuid
+        popoverGuid=this.guid
+        open=this.open
+      )
+      Overlay=(
+        component "popover/-overlay"
+        guid=this.overlayGuid
+        popoverGuid=this.guid
+        open=this.open
+      )
+    )}}
+  </Tag>
+{{/let}}

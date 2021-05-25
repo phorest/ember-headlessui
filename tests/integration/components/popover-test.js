@@ -373,15 +373,62 @@ module('Integration | Component | <Popover>', function (hooks) {
     });
 
     module('Popover.Panel', function () {
-      todo(
-        'it should be possible to render Popover.Panel using a render prop',
-        async function () {}
-      );
+      test('it should be possible to render Popover.Panel using a render prop', async function (assert) {
+        await render(hbs`
+          <Popover as |p|>
+            <p.Button>Trigger</p.Button>
+            <p.Panel>{{p.open}}</p.Panel>
+          </Popover>
+        `);
 
-      todo(
-        'it should be possible to always render the Popover.Panel if we provide it a `static` prop',
-        async function () {}
-      );
+        let popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.InvisibleUnmounted,
+          attributes: { id: /headlessui-popover-button$/ },
+        });
+
+        let popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.InvisibleUnmounted,
+        });
+
+        await click(popoverButton);
+
+        popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.Visible,
+          attributes: { id: /headlessui-popover-button$/ },
+        });
+
+        popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.Visible,
+          textContent: 'true',
+        });
+      });
+
+      test('it should be possible to always render the Popover.Panel if we provide it a `static` prop', async function (assert) {
+        await render(hbs`
+          <Popover as |p|>
+            <p.Button>Trigger</p.Button>
+            <p.Panel @static={{true}}>Contents</p.Panel>
+          </Popover>
+        `);
+
+        assert.dom('[id$="-headlessui-popover-panel"]').exists();
+      });
 
       todo(
         'it should be possible to use a different render strategy for the Popover.Panel',

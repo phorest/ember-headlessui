@@ -1,5 +1,13 @@
 {{#let (element this.tagName) as |Tag|}}
-  <Tag id={{@guid}} ...attributes>
+  <Tag
+    id={{@guid}}
+    aria-controls={{if @open @panelGuid false}}
+    aria-expanded={{if @open "true" false}}
+
+    {{on "click" @onClick}}
+
+    ...attributes
+  >
     {{yield}}
   </Tag>
 {{/let}}

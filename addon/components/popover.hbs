@@ -1,11 +1,14 @@
 {{#let (element this.tagName) as |Tag|}}
   <Tag id={{this.guid}} ...attributes>
     {{yield (hash
+      open=this.open
       Button=(
         component "popover/-button"
         guid=this.buttonGuid
         popoverGuid=this.guid
+        panelGuid=this.panelGuid
         open=this.open
+        onClick=this.handleButtonClick
       )
       Panel=(
         component "popover/-panel"

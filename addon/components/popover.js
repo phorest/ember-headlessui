@@ -1,6 +1,7 @@
 import Component from '@glimmer/component';
 import { guidFor } from '@ember/object/internals';
 import { tracked } from '@glimmer/tracking';
+import { action } from '@ember/object';
 
 export default class PopoverComponent extends Component {
   DEFAULT_TAG_NAME = 'div';
@@ -23,5 +24,10 @@ export default class PopoverComponent extends Component {
 
   get overlayGuid() {
     return `${this.guid}-overlay`;
+  }
+
+  @action
+  handleButtonClick() {
+    this.open = !this.open;
   }
 }

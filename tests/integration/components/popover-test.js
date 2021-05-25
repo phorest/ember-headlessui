@@ -1,6 +1,6 @@
 import { module, test, todo } from 'qunit';
 import { setupRenderingTest } from 'ember-qunit';
-import { render, setupOnerror } from '@ember/test-helpers';
+import { click, render, setupOnerror } from '@ember/test-helpers';
 import { hbs } from 'ember-cli-htmlbars';
 
 const PopoverState = {
@@ -229,10 +229,51 @@ module('Integration | Component | <Popover>', function (hooks) {
     });
 
     module('Popover', function () {
-      todo(
-        'it should be possible to render a Popover using a render prop',
-        async function () {}
-      );
+      test('it should be possible to render a Popover using a render prop', async function (assert) {
+        await render(hbs`
+          <Popover as |p|>
+            <p.Button>Trigger</p.Button>
+            <p.Panel>Panel is: {{if p.open "open" "closed"}}</p.Panel>
+          </Popover>
+        `);
+
+        let popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.InvisibleUnmounted,
+          attributes: { id: /headlessui-popover-button$/ },
+        });
+
+        let popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.InvisibleUnmounted,
+        });
+
+        await click(popoverButton);
+
+        popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.Visible,
+          attributes: { id: /headlessui-popover-button$/ },
+        });
+
+        popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.Visible,
+          textContent: 'Panel is: open',
+        });
+      });
     });
 
     module('Popover.Button', function () {

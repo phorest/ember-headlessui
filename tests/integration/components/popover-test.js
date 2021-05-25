@@ -277,15 +277,99 @@ module('Integration | Component | <Popover>', function (hooks) {
     });
 
     module('Popover.Button', function () {
-      todo(
-        'it should be possible to render a Popover.Button using a render prop',
-        async function () {}
-      );
+      test('it should be possible to render a Popover.Button using a render prop', async function (assert) {
+        await render(hbs`
+          <Popover as |p|>
+            <p.Button>{{p.open}}</p.Button>
+            <p.Panel></p.Panel>
+          </Popover>
+        `);
 
-      todo(
-        'it should be possible to render a Popover.Button using a render prop and an `as` prop',
-        async function () {}
-      );
+        let popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.InvisibleUnmounted,
+          attributes: { id: /headlessui-popover-button$/ },
+          textContent: 'false',
+        });
+
+        let popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.InvisibleUnmounted,
+        });
+
+        await click(popoverButton);
+
+        popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.Visible,
+          attributes: { id: /headlessui-popover-button$/ },
+          textContent: 'true',
+        });
+
+        popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.Visible,
+        });
+      });
+
+      test('it should be possible to render a Popover.Button using a render prop and an `as` prop', async function (assert) {
+        await render(hbs`
+          <Popover @as="div" role="button" as |p|>
+            <p.Button>{{p.open}}</p.Button>
+            <p.Panel></p.Panel>
+          </Popover>
+        `);
+
+        let popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.InvisibleUnmounted,
+          attributes: { id: /headlessui-popover-button$/ },
+          textContent: 'false',
+        });
+
+        let popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.InvisibleUnmounted,
+        });
+
+        await click(popoverButton);
+
+        popoverButton = this.element.querySelector(
+          '[id$="-headlessui-popover-button"]'
+        );
+
+        assertPopoverButton(assert, popoverButton, {
+          state: PopoverState.Visible,
+          attributes: { id: /headlessui-popover-button$/ },
+          textContent: 'true',
+        });
+
+        popoverPanel = this.element.querySelector(
+          '[id$="-headlessui-popover-panel"]'
+        );
+
+        assertPopoverPanel(assert, popoverPanel, {
+          state: PopoverState.Visible,
+        });
+      });
     });
 
     module('Popover.Panel', function () {

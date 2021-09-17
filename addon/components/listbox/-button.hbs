@@ -6,6 +6,7 @@
     aria-controls={{@guid}}
     aria-labelledby='{{@guid}}-label {{@guid}}-button'
     {{on 'click' @handleButtonClick}}
+    {{on 'keydown' @handleKeyDown}}
     {{on 'keyup' @handleKeyUp}}
     {{on 'keypress' @handleKeyPress}}
     aria-expanded={{unless @isDisabled (if @isOpen 'true' 'false')}}

@@ -75,6 +75,24 @@ export default class ListboxComponent extends Component {
   }
 
   @action
+  handleKeyDown(event) {
+    if (
+      (document.activeElement === this.optionsElement ||
+        document.activeElement === this.buttonElement) &&
+      [
+        'ArrowUp',
+        'ArrowDown',
+        'ArrowLeft',
+        'ArrowRight',
+        'Home',
+        'End',
+      ].indexOf(event.key) > -1
+    ) {
+      event.preventDefault();
+    }
+  }
+
+  @action
   handleKeyUp(event) {
     if (event.key === 'ArrowDown') {
       if (!this.isOpen) {
@@ -137,29 +155,14 @@ export default class ListboxComponent extends Component {
     this.isOpen = true;
   }
 
-  handleDocumentKeyDown(event) {
-    if (
-      (document.activeElement === this.optionsElement ||
-        document.activeElement === this.buttonElement) &&
-      ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(event.key) >
-        -1
-    ) {
-      event.preventDefault();
-    }
-  }
-
   @action
   registerButtonElement(buttonElement) {
     this.buttonElement = buttonElement;
-    this._handleDocumentKeyDown = this.handleDocumentKeyDown.bind(this);
-
-    document.addEventListener('keydown', this._handleDocumentKeyDown);
   }
 
   @action
   unregisterButtonElement() {
     this.buttonElement = undefined;
-    document.removeEventListener('keydown', this._handleDocumentKeyDown);
   }
 
   @action

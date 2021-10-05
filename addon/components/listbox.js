@@ -57,6 +57,7 @@ export default class ListboxComponent extends Component {
   @action
   handleButtonClick(e) {
     if (e.button !== 0) return;
+    e.preventDefault();
     this.activateBehaviour = ACTIVATE_NONE;
     this.isOpen = !this.isOpen;
   }

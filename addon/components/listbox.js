@@ -182,7 +182,7 @@ export default class ListboxComponent extends Component {
     optionElement.setAttribute('data-index', this.optionElements.length - 1);
 
     if (this.args.value) {
-      if (this.args.value === optionComponent.args.value) {
+      if (this.args.value == optionComponent.args.value) {
         this.selectedOptionIndex = this.activeOptionIndex =
           this.optionElements.length - 1;
       }

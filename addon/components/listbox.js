@@ -185,6 +185,10 @@ export default class ListboxComponent extends Component {
       if (this.args.value == optionComponent.args.value) {
         this.selectedOptionIndex = this.activeOptionIndex =
           this.optionElements.length - 1;
+
+        if (typeof optionElement.scrollIntoView === 'function') {
+          optionElement.scrollIntoView();
+        }
       }
     }
 
